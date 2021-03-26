@@ -5,7 +5,7 @@
 # 3.Uses descriptive activity names to name the activities in the data set
 # 4.Appropriately labels the data set with descriptive variable names. 
 # 5.From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
-
+## Programs flow
 # first we load all the data to a variable
 # then merge all the data
 # calculate the mean and standart deviation
