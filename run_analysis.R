@@ -7,6 +7,9 @@
 # 5.From the data set in step 4, creates a second, independent tidy data set 
 #   with the average of each variable for each activity and each subject.
 
+#load library
+library(dplyr)
+
 #Load data
 url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip "
 download.file(url, destfile="./data/rawdata.zip",mode = "wb")
@@ -35,21 +38,30 @@ tidyData <- rbind(train,test)
 #change labels to be descriptive
 tidyData$label <- factor(tidyData$label, levels = labels$labels, labels = labels$activity)
 
-#adding mean of measurement
-tidyData$mean = sapply(tidyData$measurements, function(x){
-  mean(as.numeric(unlist(strsplit(x," "))), na.rm = TRUE)
-})
+#Feature to be extracted
+extract <- filter(feature, grepl("mean()|std()" ,feature ))
 
-#adding standart deviation of measurement
-tidyData$standart_deviation = sapply(tidyData$measurements, function(x){
-  sd(as.numeric(unlist(strsplit(x," "))), na.rm = TRUE)
+#adding mean of measurement
+temp <- sapply(tidyData$measurements, function(x){
+  na.omit(as.numeric(unlist(strsplit(x," "))))
 })
+for(i in extract$index){
+  tidyData <- cbind(temp[i,],tidyData)
+}
+names(tidyData)[1:79] <-extract$feature
 
 #adding mean for each label
-tidyData$mean_label <- ave(tidyData$mean,tidyData$label, FUN = mean)
+temp <- extract$feature 
+tempp <- paste(temp, "-mean-label")
+for(i in 1:79){
+  tidyData[[tempp[i]]] <- ave(tidyData[[temp[i]]], tidyData$label, FUN = mean)
+}
 
-#adding mean for each subject
-tidyData$mean_subject <- ave(tidyData$mean,tidyData$subject, FUN = mean)
+#adding mean for each subject.
+tempp <- paste(temp, "-mean-subject")
+for(i in 1:79){
+  tidyData[[tempp[i]]] <- ave(tidyData[[temp[i]]], tidyData$subject, FUN = mean)
+}
 
 #writing dataset to text file
-write.table(tidyData[,2:8], file="tidyData.txt" ,row.name=FALSE) 
+write.table(tidyData[,81:241], file="tidyData.txt" ,row.name=FALSE) 
